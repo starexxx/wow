@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>None</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <div class="browser-buttons">
+            <div class="close"></div>
+            <div class="minimize"></div>
+            <div class="maximize"></div>
+        </div>
+        <span style="font-weight: bold;">Starexx Pages</span>
+        <button class="toggle-button" id="toggleButton">☰</button>
+    </div>
+
+    <div class="dropdown" id="dropdownMenu">
+        <button id="fetchButton">Fetch Code</button>
+        <button id="viewButton" disabled>Run Code</button>
+        <button id="shareButton">Copy Raw URLs</button>
+    </div>
+
+    <div class="content">
+        <input type="text" id="repoInput" placeholder="Enter GitHub Repository URL" />
+        <div id="output"></div>
+        <iframe id="iframeContainer"></iframe>
+        <button id="localHostButton" style="display: none;">View in Local Host</button>         
+    </div>
+
+    <div class="footer">
+        Starexx Studio!
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

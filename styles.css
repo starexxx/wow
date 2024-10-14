@@ -1,0 +1,87 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #0d1117;
+    color: #c9d1d9;
+}
+
+.header {
+    background-color: #030303;
+    color: #c9d1d9;
+    padding: 10px;
+    border-bottom: 1px solid #30363d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header .browser-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.header .browser-buttons div {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.header .browser-buttons .close {
+    background-color: red;
+}
+
+.header .browser-buttons .minimize {
+    background-color: green;
+}
+
+.header .browser-buttons .maximize {
+    background-color: yellow;
+}
+
+.toggle-button {
+    background-color: transparent;
+    border: 1px solid #30363d;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50px;
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.dropdown button {
+    background-color: transparent;
+    border: 1px solid #30363d;
+    padding: 8px 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    color: white;
+    width: 100%;
+    cursor: pointer;
+}
+
+.content {
+    padding: 20px;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #161b22;
+    color: #c9d1d9;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+}
