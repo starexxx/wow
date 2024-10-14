@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloner</title>
+    <style>
+        /* General styling for the page */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d1117; /* GitHub Dark Mode Background */
+            color: #c9d1d9; /* Light text for dark mode */
+        }
+
+        /* Styling for the header */
+        .header {
+            background-color: #030303; /* Dark blue like GitHub Dark Mode */
+            color: #c9d1d9;
+            padding: 10px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 96%;
+            left: 0;
+        }
+
+        /* Browser-like buttons for aesthetics */
+        .header .browser-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .browser-buttons div {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .header .browser-buttons .close {
+            background-color: red;
+        }
+
+        .header .browser-buttons .minimize {
+            background-color: green;
+        }
+
+        .header .browser-buttons .maximize {
+            background-color: yellow;
+        }
+
+        /* Toggle button styling */
+        .toggle-button {
+            background-color: transparent; /* Dark green */
+            border: 1px solid #30363d;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Dropdown menu for toggle button */
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50px;
+            background-color: #161b22; /* Dark menu background */
+            border: 1px solid #30363d; /* Border similar to GitHub style */
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .dropdown button {
+            background-color: transparent;
+            border: 1px solid #30363d;;
+            padding: 8px 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* Styling for content area */
+        .content {
+            padding: 20px;
+        }
+
+        /* Fixed footer styling */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: transpatent;
+            color: transparent;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header resembling a desktop browser's title bar -->
+    <div class="header">
+        <div class="browser-buttons">
+            <div class="close"></div>
+            <div class="minimize"></div>
+            <div class="maximize"></div>
+        </div>
+        <span style="font-weight: bold;">Starexx Pages</span>
+        <!-- Toggle Button -->
+        <button class="toggle-button" id="toggleButton">☰</button>
+    </div>
+
+    <!-- Dropdown Menu for Toggle -->
+    <div class="dropdown" id="dropdownMenu">
+        <button id="fetchButton">Fetch Code</button>
+        <button id="viewButton" disabled>Run Code</button>
+        <button id="shareButton">Copy Raw URLs</button>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+        <input type="text" id="repoInput" placeholder="Enter GitHub Repository URL" style="width: 96%; padding: 5px; font-size: 14px; background-color: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 5px; outline: none; margin-top: 60px" />
+        <div id="output" style="margin-top: 10px; white-space: pre-wrap; background-color: #161b22; padding: 20px; border: 1px solid #30363d; height: 150px; overflow: auto; border-radius: 5px;"></div>
+        <iframe id="iframeContainer" style="width: 100%; height: 500px; border: 1px solid #30363d; margin-top: 10px; display: none; border-radius: 5px;"></iframe>
+        <button id="localHostButton" style="display: none; margin-top: 10px; padding: 5px 10px; font-size: 14px; ">View in Local Host</button>         
+    </div>
+
+    <!-- Fixed Footer -->
+    <div class="footer">
+        Starexx Studio!
+    </div>
+
+    <script>
+        let repoFiles = [];
+        let username = '';
+        let repoName = '';
+
+        // Toggle menu visibility
+        document.getElementById('toggleButton').addEventListener('click', function() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Fetch repository code
+        document.getElementById('fetchButton').addEventListener('click', function() {
+            const repoUrl = document.getElementById('repoInput').value.trim();
+            const regex = /github\.com\/([^\/]+)\/([^\/]+)(?:\.git)?(?:\/|$)/;
+            const match = repoUrl.match(regex);
+            if (match) {
+                username = match[1];
+                repoName = match[2];
+                fetch(`https://api.github.com/repos/${username}/${repoName}/contents`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Repository not found or API rate limit exceeded.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        repoFiles = data;
+                        let outputText = '';
+                        data.forEach(file => {
+                            outputText += `File: ${file.name}\nURL: ${file.download_url}\n\n`;
+                        });
+                        document.getElementById('output').textContent = outputText;
+                        document.getElementById('viewButton').disabled = false;
+                        document.getElementById('iframeContainer').style.display = 'none';
+                        document.getElementById('localHostButton').style.display = 'none';
+                    })
+                    .catch(error => {
+                        document.getElementById('output').textContent = 'Error fetching repository: ' + error.message;
+                        document.getElementById('viewButton').disabled = true;
+                        document.getElementById('iframeContainer').style.display = 'none';
+                        document.getElementById('localHostButton').style.display = 'none';
+                    });
+            } else {
+                document.getElementById('output').textContent = 'Invalid GitHub Repository URL';
+                document.getElementById('viewButton').disabled = true;
+                document.getElementById('iframeContainer').style.display = 'none';
+                document.getElementById('localHostButton').style.display = 'none';
+            }
+        });
+
+        // View website in iframe
+        document.getElementById('viewButton').addEventListener('click', function() {
+            if (repoFiles.length === 0) {
+                alert('No files fetched. Please fetch the repository first.');
+                return;
+            }
+
+            const indexFile = repoFiles.find(file => file.name.toLowerCase() === 'index.html' || file.name.toLowerCase() === 'index.htm');
+            if (indexFile) {
+                const githubPagesUrl = `https://${username}.github.io/${repoName}/`;
+                
+                fetch(githubPagesUrl)
+                    .then(response => {
+                        if (response.ok) {
+                            document.getElementById('iframeContainer').src = githubPagesUrl;
+                            document.getElementById('iframeContainer').style.display = 'block';
+                            document.getElementById('localHostButton').style.display = 'none';
+                        } else {
+                            const proxyUrl = `https://cors-anywhere.herokuapp.com/${indexFile.download_url}`;
+                            document.getElementById('iframeContainer').src = proxyUrl;
+                            document.getElementById('iframeContainer').style.display = 'block';
+                            document.getElementById('localHostButton').style.display = 'none';
+                        }
+                    })
+                    .catch(() => {
+                        const proxyUrl = `https://cors-anywhere.herokuapp.com/${indexFile.download_url}`;
+                        document.getElementById('iframeContainer').src = proxyUrl;
+                        document.getElementById('iframeContainer').style.display = 'block';
+                        document.getElementById('localHostButton').style.display = 'none';
+                    });
+            } else {
+                alert('index.html not found in the repository.');
+            }
+        });
+
+        // Guide for viewing in local host
+        document.getElementById('localHostButton').addEventListener('click', function() {
+           alert('To view the website locally:\n\n1. Download the repository files.\n2. Run a local server using a tool like `live-server` or `http-server`.\n3. Open the website in your local browser at `localhost:PORT_NUMBER`.');
+        });
+
+        // Copy raw URLs to clipboard
+        document.getElementById('shareButton').addEventListener('click', function() {
+            if (repoFiles.length === 0) {
+                alert('No files fetched. Please fetch the repository first.');
+                return;
+            }
+
+            let rawUrls = '';
+            repoFiles.forEach(file => {
+                rawUrls += `${file.download_url}\n`;
+            });
+
+            navigator.clipboard.writeText(rawUrls).then(() => {
+                alert('Raw URLs copied to clipboard!');
+            }, () => {
+                alert('Failed to copy URLs.');
+            });
+        });
+    </script>
+</body>
+</html>
